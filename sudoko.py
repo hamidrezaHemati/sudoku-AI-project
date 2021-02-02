@@ -72,6 +72,35 @@ class Node:
                 continue
         return degree
 
+    def MRVUpdate(self, nodes):
+        rowNeighbors, columnNeighbors = self.neighbors()
+        reservedValues = []
+        for row in rowNeighbors:
+            if nodes[row[0] + row[1] * _tableSize].hasValue:
+                reservedValues.append(nodes[row[0] + row[1] * _tableSize].numericDomain)
+        for column in columnNeighbors:
+            if nodes[column[0] + column[1] * _tableSize].hasValue:
+                if nodes[column[0] + column[1] * _tableSize].numericDomain not in reservedValues:
+                    reservedValues.append(nodes[column[0] + column[1] * _tableSize].numericDomain)
+        for i in range(len(reservedValues)):
+            reservedValues[i] = reservedValues[i][0]
+        updatedDomain = []
+        for value in self.numericDomain:
+            if value not in reservedValues:
+                updatedDomain.append(value)
+
+        print("(X,Y)", self.position)
+        print("domain: ", self.numericDomain)
+        print("neighbors reserved: ", reservedValues)
+        print("new Domain: ", updatedDomain)
+
+
+    def MRVSizeGetter(self):
+        return len(self.numericDomain)
+
+    def MRVListGetter(self):
+        return self.numericDomain
+
 
 def extractInputFile(fileName):
     with open(fileName) as f:
@@ -136,7 +165,7 @@ def displaySudokuTable(_table):
 
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("2DArray.txt")
+    numbers, colors, sudokuTable = extractInputFile("table1.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
@@ -152,18 +181,18 @@ def main():
     #     x, y = nodes[i].neighbors()
     #     print(x)
     #     print(y)
+    print("degreeies : ")
     for y in range(_tableSize):
         for x in range(_tableSize):
             num = y*_tableSize + x
-            # print("num: ", num)
-            # print("(x , y) : ", x, y)
-            # print(y*_tableSize + x, " : ")
-            # x, y = nodes[y*_tableSize + x].neighbors()
-            # print(x)
-            # print(y)
-            print(nodes[num].degreeCalculator(nodes), end=" ")
+            print(nodes[num].degree(nodes), end=" ")
         print()
 
+    print("MRV: ")
+    for y in range(_tableSize):
+        for x in range(_tableSize):
+            num = y * _tableSize + x
+            nodes[num].MRVUpdate(nodes)
 
 
 main()
