@@ -53,7 +53,7 @@ class Node:
                 continue
         return False
 
-    def degreeCalculator(self, nodes):
+    def degree(self, nodes):
         rowNeighbors, columnNeighbors = self.neighbors()
         # print(rowNeighbors)
         # print(columnNeighbors)
