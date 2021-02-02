@@ -16,11 +16,11 @@ class Node:
         print("value: ", self.numericDomain)
         print("has value: ", self.hasValue)
 
-    def neighbors(self, tableSize):
+    def neighbors(self):
         # print("X: ", self.position[0], " Y: ", self.position[1])
         rowNeighbors = []
         columnNeighbors = []
-        for i in range(tableSize):
+        for i in range(_tableSize):
             if i != self.position[0]:
                 neighbor = (i, self.position[1])
                 rowNeighbors.append(neighbor)
@@ -33,7 +33,12 @@ class Node:
         print("column neighbors: ")
         for n in columnNeighbors:
             print(n)
+        return rowNeighbors, columnNeighbors
 
+    def isNeighbor(self):
+        rowNeighbors, columnNeighbors = self.neighbors()
+        for row in rowNeighbors:
+            print("row: ", row)
 
 
 def extractInputFile(fileName):
@@ -49,8 +54,8 @@ def extractInputFile(fileName):
     return numbers, colors, sudokuTable
 
 
-def numericSudokuMaker(sudokuTable, size):
-    numericSudoku = [[0 for i in range(size)] for j in range(size)]
+def numericSudokuMaker(sudokuTable):
+    numericSudoku = [[0 for i in range(_tableSize)] for j in range(_tableSize)]
     rowCounter = 0
     columnCounter = 0
     for row in sudokuTable:
@@ -77,7 +82,7 @@ def NodeMaker(numericSudoku):
     for row in numericSudoku:
         for column in row:
             if column == '-':
-                domain = [i + 1 for i in range(len(numericSudoku))]
+                domain = [i + 1 for i in range(_tableSize)]
             else:
                 domain = [column]
             nodes.append(Node((i, j), domain))
@@ -98,15 +103,17 @@ def displaySudokuTable(_table):
 
 
 def main():
+    global _tableSize
     numbers, colors, sudokuTable = extractInputFile("2DArray.txt")
-    colorSize, tableSize = numbers
-    print(colorSize, tableSize)
+    colorSize, _tableSize = numbers
+    print(colorSize, _tableSize)
     print(colors)
     displaySudokuTable(sudokuTable)
-    numericSudoku = numericSudokuMaker(sudokuTable, numbers[1])
+    numericSudoku = numericSudokuMaker(sudokuTable)
     displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
-    nodes[5].neighbors(tableSize)
+    # nodes[5].neighbors(tableSize)
+    nodes[5].isNeighbor()
 
 
 main()
