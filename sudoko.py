@@ -1,6 +1,25 @@
 import re
 
 
+class Step:
+    totalStepNumber = 0
+
+    def __init__(self, coordinate, assignedValue, stepCounter):
+        self.coordinate = coordinate
+        self.assignedValue = assignedValue
+        self.stepCounter = stepCounter
+        Step.totalStepNumber += 1
+
+    def coordinateGetter(self):
+        return self.coordinate
+
+    def assignedValueGetter(self):
+        return self.assignedValue
+
+    def stepCounterGetter(self):
+        return self.stepCounter
+
+
 class Node:
     def __init__(self, position, numericDomain):
         self.position = position
@@ -17,7 +36,6 @@ class Node:
         print("has value: ", self.hasValue)
 
     def neighbors(self):
-        # print("X: ", self.position[0], " Y: ", self.position[1])
         rowNeighbors = []
         columnNeighbors = []
         for i in range(_tableSize):
@@ -27,27 +45,21 @@ class Node:
             if i != self.position[1]:
                 neighbor = (self.position[0], i)
                 columnNeighbors.append(neighbor)
-        # print("Row neighbors: ")
-        # for n in rowNeighbors:
-        #     print(n)
-        # print("column neighbors: ")
-        # for n in columnNeighbors:
-        #     print(n)
         return rowNeighbors, columnNeighbors
 
     def isNeighbor(self, neighborCoordinateToCheck):
         rowNeighbors, columnNeighbors = self.neighbors()
         for row in rowNeighbors:
             if row == neighborCoordinateToCheck:
-                print("row: ",row)
-                print("finded neighbor: ", neighborCoordinateToCheck)
+                # print("row: ", row)
+                # print("finded neighbor: ", neighborCoordinateToCheck)
                 return True
             else:
                 continue
         for column in columnNeighbors:
             if column == neighborCoordinateToCheck:
-                print("column: ", column)
-                print("finded neighbor: ", neighborCoordinateToCheck)
+                # print("column: ", column)
+                # print("finded neighbor: ", neighborCoordinateToCheck)
                 return True
             else:
                 continue
@@ -87,7 +99,6 @@ class Node:
         # print("neighbors reserved: ", reservedValues)
         # print("new Domain: ", updatedDomain)
         self.numericDomain = updatedDomain
-
 
     def MRVSizeGetter(self):
         return len(self.numericDomain)
@@ -203,10 +214,21 @@ def bestNext(nodes):
             print("more than one sized fuck")
             return list(properNodesDict.keys())[0]
 
+def assignValue(nodes, coordinate):
+    nodeNumber = coordinate[0] + coordinate[1] * _tableSize
+    print(nodes[nodeNumber].position)
+    print(nodes[nodeNumber].hasValue)
+    print(nodes[nodeNumber].numericDomain)
+    if len(nodes[nodeNumber].numericDomain) == 1:
+        print("there is only one choice for assigning value to this node")
+        nodes[nodeNumber].hasValue = True
+    else:
+        print("there is multiple choices for assigning value to this node")
+
 
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("test2.txt")
+    numbers, colors, sudokuTable = extractInputFile("2DArray.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
@@ -214,10 +236,10 @@ def main():
     numericSudoku = numericSudokuMaker(sudokuTable)
     displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
-    print("degreeies : ")
+    print("degrees : ")
     for y in range(_tableSize):
         for x in range(_tableSize):
-            num = y*_tableSize + x
+            num = y * _tableSize + x
             print(nodes[num].degree(nodes), end=" ")
         print()
 
@@ -232,11 +254,12 @@ def main():
             # print("size: ", nodes[num].MRVSizeGetter())
     for y in range(_tableSize):
         for x in range(_tableSize):
-            num = y*_tableSize + x
+            num = y * _tableSize + x
             print(nodes[num].MRVSizeGetter(), end=" ")
         print()
 
     nodeCoordinate = bestNext(nodes)
     print("best next node: ", nodeCoordinate)
+    assignValue(nodes, nodeCoordinate)
 
 main()
