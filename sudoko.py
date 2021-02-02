@@ -27,12 +27,12 @@ class Node:
             if i != self.position[1]:
                 neighbor = (self.position[0], i)
                 columnNeighbors.append(neighbor)
-        print("Row neighbors: ")
-        for n in rowNeighbors:
-            print(n)
-        print("column neighbors: ")
-        for n in columnNeighbors:
-            print(n)
+        # print("Row neighbors: ")
+        # for n in rowNeighbors:
+        #     print(n)
+        # print("column neighbors: ")
+        # for n in columnNeighbors:
+        #     print(n)
         return rowNeighbors, columnNeighbors
 
     def isNeighbor(self, neighborCoordinateToCheck):
@@ -52,6 +52,26 @@ class Node:
             else:
                 continue
         return False
+
+
+def degreeCalculator(node, nodes):
+    rowNeighbors, columnNeighbors = node.neighbors()
+    print(rowNeighbors)
+    print(columnNeighbors)
+
+    # degree = len(rowNeighbors) + len(columnNeighbors)
+    # print("first degree: ", degree)
+    # for row in rowNeighbors:
+    #     if nodes[row[0]* _tableSize + row[1] ].hasValue:
+    #         degree -= 1
+    #     else:
+    #         continue
+    # for column in columnNeighbors:
+    #     if nodes[column[0] + column[1] * _tableSize].hasValue:
+    #         degree -= 1
+    #     else:
+    #         continue
+    # return degree
 
 
 def extractInputFile(fileName):
@@ -91,20 +111,20 @@ def numericSudokuMaker(sudokuTable):
 def NodeMaker(numericSudoku):
     nodes = []
     print(nodes)
-    i = j = 0
+    x = y = 0
     for row in numericSudoku:
         for column in row:
             if column == '-':
-                domain = [i + 1 for i in range(_tableSize)]
+                domain = [x + 1 for x in range(_tableSize)]
             else:
                 domain = [column]
-            nodes.append(Node((i, j), domain))
-            # print("i j: ", i, " ", j)
+            nodes.append(Node((x, y), domain))
+            # print("(x , y): ", x, " ", y)
             # print("domain: ", domain)
-            # print("has value: ", nodes[i * len(numericSudoku) + j].hasValue)
-            j += 1
-        j = 0
-        i += 1
+            # print("has value: ", nodes[x + y * _tableSize].hasValue)
+            x += 1
+        x = 0
+        y += 1
     return nodes
 
 
@@ -126,8 +146,22 @@ def main():
     displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
     # nodes[5].neighbors(tableSize)
-    isNeighbor = nodes[15].isNeighbor((3,0))
-    print(isNeighbor)
+    # isNeighbor = nodes[15].isNeighbor((3,0))
+    # print(isNeighbor)
+    for i in range(15):
+        print(i, " : ")
+        x, y = nodes[i].neighbors()
+        print(x)
+        print(y)
+    # for i in range(_tableSize):
+    #     for j in range(_tableSize):
+    #         print(j + i*_tableSize, " : ")
+    #         x, y = nodes[j*_tableSize + i].neighbors()
+    #         print(x)
+    #         print(y)
+            # degreeCalculator(nodes[j + i*_tableSize], nodes)
+        # print()
+
 
 
 main()
