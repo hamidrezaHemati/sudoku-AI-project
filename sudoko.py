@@ -53,25 +53,24 @@ class Node:
                 continue
         return False
 
+    def degreeCalculator(self, nodes):
+        rowNeighbors, columnNeighbors = self.neighbors()
+        # print(rowNeighbors)
+        # print(columnNeighbors)
 
-def degreeCalculator(node, nodes):
-    rowNeighbors, columnNeighbors = node.neighbors()
-    # print(rowNeighbors)
-    # print(columnNeighbors)
-
-    degree = len(rowNeighbors) + len(columnNeighbors)
-    # print("first degree: ", degree)
-    for rowNeighbor in rowNeighbors:
-        if nodes[rowNeighbor[0] + (rowNeighbor[1] * _tableSize)].hasValue:
-            degree -= 1
-        else:
-            continue
-    for columnNeighbor in columnNeighbors:
-        if nodes[columnNeighbor[0] + (columnNeighbor[1] * _tableSize)].hasValue:
-            degree -= 1
-        else:
-            continue
-    return degree
+        degree = len(rowNeighbors) + len(columnNeighbors)
+        # print("first degree: ", degree)
+        for rowNeighbor in rowNeighbors:
+            if nodes[rowNeighbor[0] + (rowNeighbor[1] * _tableSize)].hasValue:
+                degree -= 1
+            else:
+                continue
+        for columnNeighbor in columnNeighbors:
+            if nodes[columnNeighbor[0] + (columnNeighbor[1] * _tableSize)].hasValue:
+                degree -= 1
+            else:
+                continue
+        return degree
 
 
 def extractInputFile(fileName):
@@ -162,7 +161,7 @@ def main():
             # x, y = nodes[y*_tableSize + x].neighbors()
             # print(x)
             # print(y)
-            print(degreeCalculator(nodes[num], nodes), end=" ")
+            print(nodes[num].degreeCalculator(nodes), end=" ")
         print()
 
 
