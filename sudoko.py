@@ -88,11 +88,9 @@ class Node:
         for value in self.numericDomain:
             if value not in reservedValues:
                 updatedDomain.append(value)
-
-        print("(X,Y)", self.position)
-        print("domain: ", self.numericDomain)
         print("neighbors reserved: ", reservedValues)
         print("new Domain: ", updatedDomain)
+        self.numericDomain = updatedDomain
 
 
     def MRVSizeGetter(self):
@@ -192,7 +190,11 @@ def main():
     for y in range(_tableSize):
         for x in range(_tableSize):
             num = y * _tableSize + x
+            print("(X,Y)", nodes[num].position)
+            print("domain: ", nodes[num].numericDomain)
             nodes[num].MRVUpdate(nodes)
+            print("list: ", nodes[num].MRVListGetter())
+            print("size: ", nodes[num].MRVSizeGetter())
 
 
 main()
