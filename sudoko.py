@@ -10,12 +10,30 @@ class Node:
         else:
             self.hasValue = False
 
-
     def func(self):
-        print("infrmations: ")
+        print("informations: ")
         print("X Y ", self.position)
         print("value: ", self.numericDomain)
-        print("hase value: ", self.hasValue)
+        print("has value: ", self.hasValue)
+
+    def neighbors(self, tableSize):
+        # print("X: ", self.position[0], " Y: ", self.position[1])
+        rowNeighbors = []
+        columnNeighbors = []
+        for i in range(tableSize):
+            if i != self.position[0]:
+                neighbor = (i, self.position[1])
+                rowNeighbors.append(neighbor)
+            if i != self.position[1]:
+                neighbor = (self.position[0], i)
+                columnNeighbors.append(neighbor)
+        print("Row neighbors: ")
+        for n in rowNeighbors:
+            print(n)
+        print("column neighbors: ")
+        for n in columnNeighbors:
+            print(n)
+
 
 
 def extractInputFile(fileName):
@@ -41,7 +59,7 @@ def numericSudokuMaker(sudokuTable, size):
             if match:
                 num = 0
                 for k in range(len(match)):
-                    num = num*10 + int(match[k])
+                    num = num * 10 + int(match[k])
                 numericSudoku[rowCounter][columnCounter] = num
             else:
                 numericSudoku[rowCounter][columnCounter] = "-"
@@ -59,32 +77,36 @@ def NodeMaker(numericSudoku):
     for row in numericSudoku:
         for column in row:
             if column == '-':
-                domain = [i+1 for i in range(len(numericSudoku))]
+                domain = [i + 1 for i in range(len(numericSudoku))]
             else:
                 domain = [column]
             nodes.append(Node((i, j), domain))
-            print("i j: ", i, " ", j)
-            print("domain: ", domain)
-            print("has value: ", nodes[i*len(numericSudoku) + j].hasValue)
+            # print("i j: ", i, " ", j)
+            # print("domain: ", domain)
+            # print("has value: ", nodes[i * len(numericSudoku) + j].hasValue)
             j += 1
         j = 0
         i += 1
+    return nodes
+
+
+def displaySudokuTable(_table):
+    for row in _table:
+        for column in row:
+            print(column, end=" ")
+        print()
 
 
 def main():
     numbers, colors, sudokuTable = extractInputFile("2DArray.txt")
-    colorSize, TableSize = numbers
-    print(colorSize, TableSize)
+    colorSize, tableSize = numbers
+    print(colorSize, tableSize)
     print(colors)
-    for row in sudokuTable:
-        for column in row:
-            print(column, end=" ")
-        print()
+    displaySudokuTable(sudokuTable)
     numericSudoku = numericSudokuMaker(sudokuTable, numbers[1])
-    for row in numericSudoku:
-        for column in row:
-            print(column, end=" ")
-        print()
-    NodeMaker(numericSudoku)
+    displaySudokuTable(numericSudoku)
+    nodes = NodeMaker(numericSudoku)
+    nodes[5].neighbors(tableSize)
+
 
 main()
