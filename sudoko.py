@@ -56,22 +56,22 @@ class Node:
 
 def degreeCalculator(node, nodes):
     rowNeighbors, columnNeighbors = node.neighbors()
-    print(rowNeighbors)
-    print(columnNeighbors)
+    # print(rowNeighbors)
+    # print(columnNeighbors)
 
-    # degree = len(rowNeighbors) + len(columnNeighbors)
+    degree = len(rowNeighbors) + len(columnNeighbors)
     # print("first degree: ", degree)
-    # for row in rowNeighbors:
-    #     if nodes[row[0]* _tableSize + row[1] ].hasValue:
-    #         degree -= 1
-    #     else:
-    #         continue
-    # for column in columnNeighbors:
-    #     if nodes[column[0] + column[1] * _tableSize].hasValue:
-    #         degree -= 1
-    #     else:
-    #         continue
-    # return degree
+    for rowNeighbor in rowNeighbors:
+        if nodes[rowNeighbor[0] + (rowNeighbor[1] * _tableSize)].hasValue:
+            degree -= 1
+        else:
+            continue
+    for columnNeighbor in columnNeighbors:
+        if nodes[columnNeighbor[0] + (columnNeighbor[1] * _tableSize)].hasValue:
+            degree -= 1
+        else:
+            continue
+    return degree
 
 
 def extractInputFile(fileName):
@@ -148,19 +148,22 @@ def main():
     # nodes[5].neighbors(tableSize)
     # isNeighbor = nodes[15].isNeighbor((3,0))
     # print(isNeighbor)
-    for i in range(15):
-        print(i, " : ")
-        x, y = nodes[i].neighbors()
-        print(x)
-        print(y)
-    # for i in range(_tableSize):
-    #     for j in range(_tableSize):
-    #         print(j + i*_tableSize, " : ")
-    #         x, y = nodes[j*_tableSize + i].neighbors()
-    #         print(x)
-    #         print(y)
-            # degreeCalculator(nodes[j + i*_tableSize], nodes)
-        # print()
+    # for i in range(16):
+    #     print(i, " : ")
+    #     x, y = nodes[i].neighbors()
+    #     print(x)
+    #     print(y)
+    for y in range(_tableSize):
+        for x in range(_tableSize):
+            num = y*_tableSize + x
+            # print("num: ", num)
+            # print("(x , y) : ", x, y)
+            # print(y*_tableSize + x, " : ")
+            # x, y = nodes[y*_tableSize + x].neighbors()
+            # print(x)
+            # print(y)
+            print(degreeCalculator(nodes[num], nodes), end=" ")
+        print()
 
 
 
