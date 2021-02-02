@@ -35,10 +35,23 @@ class Node:
             print(n)
         return rowNeighbors, columnNeighbors
 
-    def isNeighbor(self):
+    def isNeighbor(self, neighborCoordinateToCheck):
         rowNeighbors, columnNeighbors = self.neighbors()
         for row in rowNeighbors:
-            print("row: ", row)
+            if row == neighborCoordinateToCheck:
+                print("row: ",row)
+                print("finded neighbor: ", neighborCoordinateToCheck)
+                return True
+            else:
+                continue
+        for column in columnNeighbors:
+            if column == neighborCoordinateToCheck:
+                print("column: ", column)
+                print("finded neighbor: ", neighborCoordinateToCheck)
+                return True
+            else:
+                continue
+        return False
 
 
 def extractInputFile(fileName):
@@ -113,7 +126,8 @@ def main():
     displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
     # nodes[5].neighbors(tableSize)
-    nodes[5].isNeighbor()
+    isNeighbor = nodes[15].isNeighbor((3,0))
+    print(isNeighbor)
 
 
 main()
