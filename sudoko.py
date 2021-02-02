@@ -164,26 +164,49 @@ def bestNext(nodes):
     valueList = list(dict.values())
     coordianates = list(dict.keys())
     minimum = min(valueList)
-    print("minimum value", minimum)
-    # repetation = valueList.count(minimum)
-    # print("number of repetes", repetation)
+    # print("minimum value", minimum)
     indices = [i for i, x in enumerate(valueList) if x == minimum]
-    print("repetation positions: ", indices)
+    # print("repetation positions: ", indices)
     indexesToRemove = []
     for i in indices:
         if nodes[i].hasValue:
             indexesToRemove.append(i)
-    print("indexes to remove: ", indexesToRemove)
+    # print("indexes to remove: ", indexesToRemove)
     for i in indexesToRemove:
         indices.remove(i)
-    for i in indices:
-        print(coordianates[i] , i)
-
+    # print("indices to check: ", indices)
+    # for i in indices:
+    #     print(coordianates[i] , i)
+    if len(indices) == 1:
+        print("next best node finded just by MRV heuristic: ", coordianates[indices[0]])
+        return coordianates[indices[0]]
+    else:
+        print("degree heuristic needed")
+        degreeDict = {}
+        for i in indices:
+            degreeDict[coordianates[i]] = nodes[i].degree(nodes)
+        print(degreeDict)
+        remindingDegreeValueList = list(degreeDict.values())
+        print(remindingDegreeValueList)
+        maximumValueOfDegree = max(remindingDegreeValueList)
+        print(maximumValueOfDegree)
+        properNodesDict = {}
+        for coordinate, degreeValue in degreeDict.items():
+            if degreeValue == maximumValueOfDegree:
+                properNodesDict[coordinate] = degreeValue
+        print(properNodesDict)
+        # print("first best node coordinates: ", list(properNodesDict.keys())[0])
+        if len(properNodesDict) == 1:
+            print("one sized fuck")
+            return list(properNodesDict.keys())[0]
+        else:
+            print("more than one sized fuck")
+            return list(properNodesDict.keys())[0]
 
 
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("table1.txt")
+    numbers, colors, sudokuTable = extractInputFile("test2.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
@@ -213,6 +236,7 @@ def main():
             print(nodes[num].MRVSizeGetter(), end=" ")
         print()
 
-    bestNext(nodes)
+    nodeCoordinate = bestNext(nodes)
+    print("best next node: ", nodeCoordinate)
 
 main()
