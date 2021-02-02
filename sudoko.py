@@ -55,11 +55,7 @@ class Node:
 
     def degree(self, nodes):
         rowNeighbors, columnNeighbors = self.neighbors()
-        # print(rowNeighbors)
-        # print(columnNeighbors)
-
         degree = len(rowNeighbors) + len(columnNeighbors)
-        # print("first degree: ", degree)
         for rowNeighbor in rowNeighbors:
             if nodes[rowNeighbor[0] + (rowNeighbor[1] * _tableSize)].hasValue:
                 degree -= 1
@@ -88,8 +84,8 @@ class Node:
         for value in self.numericDomain:
             if value not in reservedValues:
                 updatedDomain.append(value)
-        print("neighbors reserved: ", reservedValues)
-        print("new Domain: ", updatedDomain)
+        # print("neighbors reserved: ", reservedValues)
+        # print("new Domain: ", updatedDomain)
         self.numericDomain = updatedDomain
 
 
@@ -161,6 +157,30 @@ def displaySudokuTable(_table):
         print()
 
 
+def bestNext(nodes):
+    dict = {}
+    for i in range(len(nodes)):
+        dict[nodes[i].position] = nodes[i].MRVSizeGetter()
+    valueList = list(dict.values())
+    coordianates = list(dict.keys())
+    minimum = min(valueList)
+    print("minimum value", minimum)
+    # repetation = valueList.count(minimum)
+    # print("number of repetes", repetation)
+    indices = [i for i, x in enumerate(valueList) if x == minimum]
+    print("repetation positions: ", indices)
+    indexesToRemove = []
+    for i in indices:
+        if nodes[i].hasValue:
+            indexesToRemove.append(i)
+    print("indexes to remove: ", indexesToRemove)
+    for i in indexesToRemove:
+        indices.remove(i)
+    for i in indices:
+        print(coordianates[i] , i)
+
+
+
 def main():
     global _tableSize
     numbers, colors, sudokuTable = extractInputFile("table1.txt")
@@ -171,14 +191,6 @@ def main():
     numericSudoku = numericSudokuMaker(sudokuTable)
     displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
-    # nodes[5].neighbors(tableSize)
-    # isNeighbor = nodes[15].isNeighbor((3,0))
-    # print(isNeighbor)
-    # for i in range(16):
-    #     print(i, " : ")
-    #     x, y = nodes[i].neighbors()
-    #     print(x)
-    #     print(y)
     print("degreeies : ")
     for y in range(_tableSize):
         for x in range(_tableSize):
@@ -190,11 +202,17 @@ def main():
     for y in range(_tableSize):
         for x in range(_tableSize):
             num = y * _tableSize + x
-            print("(X,Y)", nodes[num].position)
-            print("domain: ", nodes[num].numericDomain)
+            # print("(X,Y)", nodes[num].position)
+            # print("domain: ", nodes[num].numericDomain)
             nodes[num].MRVUpdate(nodes)
-            print("list: ", nodes[num].MRVListGetter())
-            print("size: ", nodes[num].MRVSizeGetter())
+            # print("list: ", nodes[num].MRVListGetter())
+            # print("size: ", nodes[num].MRVSizeGetter())
+    for y in range(_tableSize):
+        for x in range(_tableSize):
+            num = y*_tableSize + x
+            print(nodes[num].MRVSizeGetter(), end=" ")
+        print()
 
+    bestNext(nodes)
 
 main()
