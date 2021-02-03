@@ -1,4 +1,5 @@
 import re
+from tkinter import *
 
 
 class Step:
@@ -166,8 +167,6 @@ def NodeMaker(numericSudoku):
     return nodes
 
 
-
-
 def minimumRemainingValues(nodes):
     dict = {}
     for i in range(len(nodes)):
@@ -187,48 +186,60 @@ def minimumRemainingValues(nodes):
 
 def bestNextNode(nodes):
     coordianates, indices = minimumRemainingValues(nodes)
-    print("MRV candidates reminding after finding MRV: ", end=" ")
-    for i in indices:
-        print(coordianates[i], end=" ")
-    print()
+    # print("MRV candidates reminding after finding MRV: ", end=" ")
+    # for i in indices:
+    #     print(coordianates[i], end=" ")
+    # print()
     if len(indices) == 1:
-        print("next best node finded just by MRV heuristic: ", coordianates[indices[0]])
+        # print("next best node finded just by MRV heuristic: ", coordianates[indices[0]])
         return coordianates[indices[0]]
     else:
-        print("degree heuristic needed")
+        # print("degree heuristic needed")
         degreeDict = {}
         for i in indices:
             degreeDict[coordianates[i]] = nodes[i].degree(nodes)
-        print("degree dict: ", degreeDict)
+        # print("degree dict: ", degreeDict)
         remindingDegreeValueList = list(degreeDict.values())
-        print("remindingDegreeValueList <IMPORTANT> : ", remindingDegreeValueList)
+        # print("remindingDegreeValueList <IMPORTANT> : ", remindingDegreeValueList)
         maximumValueOfDegree = max(remindingDegreeValueList)
-        print("maximum degree value: ", maximumValueOfDegree)
+        # print("maximum degree value: ", maximumValueOfDegree)
         properNodesDict = {}
         for coordinate, degreeValue in degreeDict.items():
             if degreeValue == maximumValueOfDegree:
                 properNodesDict[coordinate] = degreeValue
         # print(properNodesDict)
-        print("first best node coordinates: ", list(properNodesDict.keys())[0])
+        # print("first best node coordinates: ", list(properNodesDict.keys())[0])
         if len(properNodesDict) == 1:
-            print("one sized fuck")
+            # print("one sized fuck")
             return list(properNodesDict.keys())[0]
         else:
-            print("more than one sized fuck")
+            # print("more than one sized fuck")
             return list(properNodesDict.keys())[0]
 
 
-def assignValue(nodes, coordinate):
+global stepNumber
+stepNumber = 0
+
+
+def solve(nodes, coordinate, path):
+    global stepNumber
     nodeNumber = coordinate[0] + coordinate[1] * _tableSize
-    print(nodes[nodeNumber].position)
-    print(nodes[nodeNumber].hasValue)
-    print(nodes[nodeNumber].numericDomain)
+    # print(nodes[nodeNumber].position)
+    # print(nodes[nodeNumber].hasValue)
+    # print(nodes[nodeNumber].numericDomain)
     if len(nodes[nodeNumber].numericDomain) == 1:
-        print("there is only one choice for assigning value to this node")
+        # print("there is only one choice for assigning value to this node")
         nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
         nodes[nodeNumber].hasValue = True
+
+        step = Step(coordinate, nodes[nodeNumber].assignedValue, stepNumber)
     else:
-        print("there is multiple choices for assigning value to this node")
+        # print("there is multiple choices for assigning value to this node")
+        nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
+        nodes[nodeNumber].hasValue = True
+        step = Step(coordinate, nodes[nodeNumber].assignedValue, stepNumber)
+    stepNumber += 1
+    path.append(step)
 
 
 def displaySudokuTable(_table):
@@ -238,7 +249,7 @@ def displaySudokuTable(_table):
         print()
 
 
-def display(nodes):
+def draw(nodes):
     for row in range(_tableSize):
         for col in range(_tableSize):
             if nodes[col + row * _tableSize].hasValue:
@@ -246,6 +257,18 @@ def display(nodes):
             else:
                 print("-", end=" ")
         print()
+
+
+def updateMRV(nodes):
+    for y in range(_tableSize):
+        for x in range(_tableSize):
+            num = y * _tableSize + x
+            # print("(X,Y)", nodes[num].position)
+            # print("domain: ", nodes[num].numericDomain)
+            nodes[num].MRVUpdate(nodes)
+            # print("list: ", nodes[num].MRVListGetter())
+            # print("size: ", nodes[num].MRVSizeGetter())
+
 
 def main():
     global _tableSize
@@ -290,11 +313,13 @@ def main():
     # assignValue(nodes, nodeCoordinate)
     print("--------------------------------------------")
     print("--------------------------------------------")
+    print("--------------------------------------------")
+    path = []
     for i in range(6):
         print("i: ", i)
         nextNode = bestNextNode(nodes)
-        assignValue(nodes, nextNode)
-        display(nodes)
+        solve(nodes, nextNode, path)
+        draw(nodes)
         # print("degrees : ")
         # for y in range(_tableSize):
         #     for x in range(_tableSize):
@@ -303,19 +328,16 @@ def main():
         #     print()
         #
         # print("MRV: ")
-        for y in range(_tableSize):
-            for x in range(_tableSize):
-                num = y * _tableSize + x
-                # print("(X,Y)", nodes[num].position)
-                # print("domain: ", nodes[num].numericDomain)
-                nodes[num].MRVUpdate(nodes)
-                # print("list: ", nodes[num].MRVListGetter())
-                # print("size: ", nodes[num].MRVSizeGetter())
+        updateMRV(nodes)
         # for y in range(_tableSize):
         #     for x in range(_tableSize):
         #         num = y * _tableSize + x
         #         print(nodes[num].MRVSizeGetter(), end=" ")
         #     print()
+    for i in path:
+        print("step number: ", i.stepCounter)
+        print("selected coordinate: ", i.coordinate)
+        print("assigned value: ", i.assignedValue)
 
 
 
