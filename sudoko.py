@@ -248,11 +248,22 @@ global stepNumber
 stepNumber = 0
 
 
+# returns true when table is solved
+def endGameCheck(nodes):
+    for node in nodes:
+        if not node.hasValue:
+            return False
+    return True
+
+
 def solve(nodes, path, notSetNodes):
     global stepNumber
-
-    for i in range(notSetNodes):
-        print("i: ", i+1)
+    i = 1
+    while True:
+        if endGameCheck(nodes):
+            break
+        
+        print("i: ", i)
         nextNode = bestNextNode(nodes)
         nodeNumber = nextNode[0] + nextNode[1] * _tableSize
         if len(nodes[nodeNumber].numericDomain) == 1:
@@ -281,6 +292,8 @@ def solve(nodes, path, notSetNodes):
             print()
 
 
+
+
 def displaySudokuTable(_table):
     for row in _table:
         for column in row:
@@ -301,7 +314,7 @@ def updateMRV(nodes):
 
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("test5.txt")
+    numbers, colors, sudokuTable = extractInputFile("test2.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
