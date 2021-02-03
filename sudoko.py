@@ -26,14 +26,19 @@ class Node:
         self.numericDomain = numericDomain
         if len(numericDomain) == 1:
             self.hasValue = True
+            self.assignedValue = numericDomain[0]
         else:
             self.hasValue = False
 
-    def func(self):
+    def display(self):
         print("informations: ")
         print("X Y ", self.position)
         print("value: ", self.numericDomain)
         print("has value: ", self.hasValue)
+        print("assigned value: ", self.assignedValue)
+
+    def assignedValueGetter(self):
+        return self.assignedValue
 
     def neighbors(self):
         rowNeighbors = []
@@ -161,33 +166,31 @@ def NodeMaker(numericSudoku):
     return nodes
 
 
-def displaySudokuTable(_table):
-    for row in _table:
-        for column in row:
-            print(column, end=" ")
-        print()
 
 
-def bestNext(nodes):
+def minimumRemainingValues(nodes):
     dict = {}
     for i in range(len(nodes)):
         dict[nodes[i].position] = nodes[i].MRVSizeGetter()
     valueList = list(dict.values())
     coordianates = list(dict.keys())
     minimum = min(valueList)
-    # print("minimum value", minimum)
     indices = [i for i, x in enumerate(valueList) if x == minimum]
-    # print("repetation positions: ", indices)
     indexesToRemove = []
     for i in indices:
         if nodes[i].hasValue:
             indexesToRemove.append(i)
-    # print("indexes to remove: ", indexesToRemove)
     for i in indexesToRemove:
         indices.remove(i)
-    # print("indices to check: ", indices)
-    # for i in indices:
-    #     print(coordianates[i] , i)
+    return coordianates, indices
+
+
+def bestNextNode(nodes):
+    coordianates, indices = minimumRemainingValues(nodes)
+    print("MRV candidates reminding after finding MRV: ", end=" ")
+    for i in indices:
+        print(coordianates[i], end=" ")
+    print()
     if len(indices) == 1:
         print("next best node finded just by MRV heuristic: ", coordianates[indices[0]])
         return coordianates[indices[0]]
@@ -196,23 +199,24 @@ def bestNext(nodes):
         degreeDict = {}
         for i in indices:
             degreeDict[coordianates[i]] = nodes[i].degree(nodes)
-        print(degreeDict)
+        print("degree dict: ", degreeDict)
         remindingDegreeValueList = list(degreeDict.values())
-        print(remindingDegreeValueList)
+        print("remindingDegreeValueList <IMPORTANT> : ", remindingDegreeValueList)
         maximumValueOfDegree = max(remindingDegreeValueList)
-        print(maximumValueOfDegree)
+        print("maximum degree value: ", maximumValueOfDegree)
         properNodesDict = {}
         for coordinate, degreeValue in degreeDict.items():
             if degreeValue == maximumValueOfDegree:
                 properNodesDict[coordinate] = degreeValue
-        print(properNodesDict)
-        # print("first best node coordinates: ", list(properNodesDict.keys())[0])
+        # print(properNodesDict)
+        print("first best node coordinates: ", list(properNodesDict.keys())[0])
         if len(properNodesDict) == 1:
             print("one sized fuck")
             return list(properNodesDict.keys())[0]
         else:
             print("more than one sized fuck")
             return list(properNodesDict.keys())[0]
+
 
 def assignValue(nodes, coordinate):
     nodeNumber = coordinate[0] + coordinate[1] * _tableSize
@@ -221,14 +225,31 @@ def assignValue(nodes, coordinate):
     print(nodes[nodeNumber].numericDomain)
     if len(nodes[nodeNumber].numericDomain) == 1:
         print("there is only one choice for assigning value to this node")
+        nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
         nodes[nodeNumber].hasValue = True
     else:
         print("there is multiple choices for assigning value to this node")
 
 
+def displaySudokuTable(_table):
+    for row in _table:
+        for column in row:
+            print(column, end=" ")
+        print()
+
+
+def display(nodes):
+    for row in range(_tableSize):
+        for col in range(_tableSize):
+            if nodes[col + row * _tableSize].hasValue:
+                print(nodes[col + row * _tableSize].assignedValue, end=" ")
+            else:
+                print("-", end=" ")
+        print()
+
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("2DArray.txt")
+    numbers, colors, sudokuTable = extractInputFile("table1.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
@@ -236,6 +257,12 @@ def main():
     numericSudoku = numericSudokuMaker(sudokuTable)
     displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
+    # for i in range(8):
+    #     print("(X,Y)", nodes[i].position, end=" ")
+    #     print("has value: ", nodes[i].hasValue)
+    #     if nodes[i].hasValue:
+    #         print("assigned value: ", nodes[i].assignedValueGetter())
+    #         nodes[i].assignedValue = 5
     print("degrees : ")
     for y in range(_tableSize):
         for x in range(_tableSize):
@@ -258,8 +285,38 @@ def main():
             print(nodes[num].MRVSizeGetter(), end=" ")
         print()
 
-    nodeCoordinate = bestNext(nodes)
-    print("best next node: ", nodeCoordinate)
-    assignValue(nodes, nodeCoordinate)
+    # nodeCoordinate = bestNextNode(nodes)
+    # print("best next node: ", nodeCoordinate)
+    # assignValue(nodes, nodeCoordinate)
+    print("--------------------------------------------")
+    print("--------------------------------------------")
+    for i in range(6):
+        print("i: ", i)
+        nextNode = bestNextNode(nodes)
+        assignValue(nodes, nextNode)
+        display(nodes)
+        # print("degrees : ")
+        # for y in range(_tableSize):
+        #     for x in range(_tableSize):
+        #         num = y * _tableSize + x
+        #         print(nodes[num].degree(nodes), end=" ")
+        #     print()
+        #
+        # print("MRV: ")
+        for y in range(_tableSize):
+            for x in range(_tableSize):
+                num = y * _tableSize + x
+                # print("(X,Y)", nodes[num].position)
+                # print("domain: ", nodes[num].numericDomain)
+                nodes[num].MRVUpdate(nodes)
+                # print("list: ", nodes[num].MRVListGetter())
+                # print("size: ", nodes[num].MRVSizeGetter())
+        # for y in range(_tableSize):
+        #     for x in range(_tableSize):
+        #         num = y * _tableSize + x
+        #         print(nodes[num].MRVSizeGetter(), end=" ")
+        #     print()
+
+
 
 main()
