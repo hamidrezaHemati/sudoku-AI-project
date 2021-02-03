@@ -255,17 +255,11 @@ def solve(nodes, path, notSetNodes):
         print("i: ", i+1)
         nextNode = bestNextNode(nodes)
         nodeNumber = nextNode[0] + nextNode[1] * _tableSize
-        # print(nodes[nodeNumber].position)
-        # print(nodes[nodeNumber].hasValue)
-        # print(nodes[nodeNumber].numericDomain)
         if len(nodes[nodeNumber].numericDomain) == 1:
-            # print("there is only one choice for assigning value to this node")
             nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
             nodes[nodeNumber].hasValue = True
-
             step = Step(nextNode, nodes[nodeNumber].assignedValue, stepNumber)
         else:
-            # print("there is multiple choices for assigning value to this node")
             nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
             nodes[nodeNumber].hasValue = True
             step = Step(nextNode, nodes[nodeNumber].assignedValue, stepNumber)
@@ -307,7 +301,7 @@ def updateMRV(nodes):
 
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("2DArray.txt")
+    numbers, colors, sudokuTable = extractInputFile("test5.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
@@ -357,6 +351,7 @@ def main():
     path = []
     solve(nodes, path, notSetNodes)
     for i in path:
+        print("#########")
         print("step number: ", i.stepCounter)
         print("selected coordinate: ", i.coordinate)
         print("assigned value: ", i.assignedValue)
