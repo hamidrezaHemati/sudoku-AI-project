@@ -217,38 +217,6 @@ def bestNextNode(nodes):
             return list(properNodesDict.keys())[0]
 
 
-global stepNumber
-stepNumber = 0
-
-
-def solve(nodes, coordinate, path):
-    global stepNumber
-    nodeNumber = coordinate[0] + coordinate[1] * _tableSize
-    # print(nodes[nodeNumber].position)
-    # print(nodes[nodeNumber].hasValue)
-    # print(nodes[nodeNumber].numericDomain)
-    if len(nodes[nodeNumber].numericDomain) == 1:
-        # print("there is only one choice for assigning value to this node")
-        nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
-        nodes[nodeNumber].hasValue = True
-
-        step = Step(coordinate, nodes[nodeNumber].assignedValue, stepNumber)
-    else:
-        # print("there is multiple choices for assigning value to this node")
-        nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
-        nodes[nodeNumber].hasValue = True
-        step = Step(coordinate, nodes[nodeNumber].assignedValue, stepNumber)
-    stepNumber += 1
-    path.append(step)
-
-
-def displaySudokuTable(_table):
-    for row in _table:
-        for column in row:
-            print(column, end=" ")
-        print()
-
-
 def draw(nodes):
     for row in range(_tableSize):
         for col in range(_tableSize):
@@ -256,6 +224,44 @@ def draw(nodes):
                 print(nodes[col + row * _tableSize].assignedValue, end=" ")
             else:
                 print("-", end=" ")
+        print()
+
+
+global stepNumber
+stepNumber = 0
+
+
+def solve(nodes, path, notSetNodes):
+    global stepNumber
+
+    for i in range(notSetNodes):
+        print("i: ", i)
+        nextNode = bestNextNode(nodes)
+        nodeNumber = nextNode[0] + nextNode[1] * _tableSize
+        # print(nodes[nodeNumber].position)
+        # print(nodes[nodeNumber].hasValue)
+        # print(nodes[nodeNumber].numericDomain)
+        if len(nodes[nodeNumber].numericDomain) == 1:
+            # print("there is only one choice for assigning value to this node")
+            nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
+            nodes[nodeNumber].hasValue = True
+
+            step = Step(nextNode, nodes[nodeNumber].assignedValue, stepNumber)
+        else:
+            # print("there is multiple choices for assigning value to this node")
+            nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
+            nodes[nodeNumber].hasValue = True
+            step = Step(nextNode, nodes[nodeNumber].assignedValue, stepNumber)
+        stepNumber += 1
+        path.append(step)
+        draw(nodes)
+        updateMRV(nodes)
+
+
+def displaySudokuTable(_table):
+    for row in _table:
+        for column in row:
+            print(column, end=" ")
         print()
 
 
@@ -280,7 +286,11 @@ def main():
     numericSudoku = numericSudokuMaker(sudokuTable)
     displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
-    # for i in range(8):
+    numberOfAlreaduQuantifiedNodes = 0
+    for node in nodes:
+        if node.hasValue:
+            numberOfAlreaduQuantifiedNodes += 1
+            # for i in range(8):
     #     print("(X,Y)", nodes[i].position, end=" ")
     #     print("has value: ", nodes[i].hasValue)
     #     if nodes[i].hasValue:
@@ -307,38 +317,20 @@ def main():
             num = y * _tableSize + x
             print(nodes[num].MRVSizeGetter(), end=" ")
         print()
-
+    notSetNodes = len(nodes) - numberOfAlreaduQuantifiedNodes
     # nodeCoordinate = bestNextNode(nodes)
     # print("best next node: ", nodeCoordinate)
     # assignValue(nodes, nodeCoordinate)
+    print("akirekhar: ", numberOfAlreaduQuantifiedNodes, len(nodes))
     print("--------------------------------------------")
     print("--------------------------------------------")
     print("--------------------------------------------")
     path = []
-    for i in range(6):
-        print("i: ", i)
-        nextNode = bestNextNode(nodes)
-        solve(nodes, nextNode, path)
-        draw(nodes)
-        # print("degrees : ")
-        # for y in range(_tableSize):
-        #     for x in range(_tableSize):
-        #         num = y * _tableSize + x
-        #         print(nodes[num].degree(nodes), end=" ")
-        #     print()
-        #
-        # print("MRV: ")
-        updateMRV(nodes)
-        # for y in range(_tableSize):
-        #     for x in range(_tableSize):
-        #         num = y * _tableSize + x
-        #         print(nodes[num].MRVSizeGetter(), end=" ")
-        #     print()
+    solve(nodes, path, notSetNodes)
     for i in path:
         print("step number: ", i.stepCounter)
         print("selected coordinate: ", i.coordinate)
         print("assigned value: ", i.assignedValue)
-
 
 
 main()
