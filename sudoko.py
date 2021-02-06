@@ -36,7 +36,6 @@ class Node:
         print("X Y ", self.position)
         print("value: ", self.numericDomain)
         print("has value: ", self.hasValue)
-        print("assigned value: ", self.assignedValue)
 
     def assignedValueGetter(self):
         return self.assignedValue
@@ -52,6 +51,19 @@ class Node:
                 neighbor = (self.position[0], i)
                 columnNeighbors.append(neighbor)
         return rowNeighbors, columnNeighbors
+
+    def adjacentNeighbor(self):
+        rowNeighbors, columnNeighbors = self.neighbors()
+
+        adjacentRow = []
+        adjacentCol = []
+        for row in rowNeighbors:
+            if abs(row[0] - self.position[0]) == 1:
+                adjacentRow.append(row)
+        for col in columnNeighbors:
+            if abs(col[1] - self.position[1]) == 1:
+                adjacentCol.append(col)
+        return adjacentRow, adjacentCol
 
     def isNeighbor(self, neighborCoordinateToCheck):
         rowNeighbors, columnNeighbors = self.neighbors()
@@ -335,6 +347,7 @@ def main():
         for x in range(_tableSize):
             num = y * _tableSize + x
             nodes[num].MRVUpdate(nodes)
+
     print("--------------------------------------------")
     path = []
     if not solve(nodes, path):
@@ -343,11 +356,11 @@ def main():
         print()
         print("solved sudoku table: ")
         draw(nodes)
-    # for i in path:
-    #     print("#########")
-    #     print("step number: ", i.stepCounter)
-    #     print("selected coordinate: ", i.coordinate)
-    #     print("assigned value: ", i.assignedValue)
+    for i in path:
+        print("#########")
+        print("step number: ", i.stepCounter)
+        print("selected coordinate: ", i.coordinate)
+        print("assigned value: ", i.assignedValue)
 
 
 main()
