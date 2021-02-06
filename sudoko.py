@@ -209,6 +209,7 @@ def bestNextNode(nodes):
     # print()
     if len(indices) == 1:
         print("NEXT NODE FINDED BY SOLO MRV: ", coordianates[indices[0]])
+        print("number of options in domain: ", nodes[coordianates[indices[0]][0] + coordianates[indices[0]][1] * _tableSize].numericDomain)
         return coordianates[indices[0]]
     else:
         print("DEGREE HEURISTIC NEDDED")
@@ -265,6 +266,21 @@ global stepNumber
 stepNumber = 0
 
 
+# return false if there is node without any assignment options
+# return true if everything is fine
+def forwardChecking(nodes):
+    print("MRV: ")
+    for y in range(_tableSize):
+        for x in range(_tableSize):
+            num = y * _tableSize + x
+            print(nodes[num].MRVSizeGetter(), end=" ")
+        print()
+    for node in nodes:
+        if node.MRVSizeGetter() == 0:
+            return False
+    return True
+
+
 # returns true when table is solved
 def endGameCheck(nodes):
     for node in nodes:
@@ -280,8 +296,10 @@ def solve(nodes, path):
         if endGameCheck(nodes):
             break
         print("i: ", i)
+        i += 1
         nextNode = bestNextNode(nodes)
         nodeNumber = nextNode[0] + nextNode[1] * _tableSize
+        print("NUMBER OF VALUES IN NODE DOMAIN: ", len(nodes[nodeNumber].numericDomain))
         if len(nodes[nodeNumber].numericDomain) == 1:
             nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
             nodes[nodeNumber].hasValue = True
@@ -294,23 +312,57 @@ def solve(nodes, path):
         path.append(step)
         draw(nodes)
         updateMRV(nodes)
-        print("degrees: ")
-        for y in range(_tableSize):
-            for x in range(_tableSize):
-                num = y * _tableSize + x
-                print(nodes[num].degree(nodes), end=" ")
-            print()
-        print("MRV: ")
-        for y in range(_tableSize):
-            for x in range(_tableSize):
-                num = y * _tableSize + x
-                print(nodes[num].MRVSizeGetter(), end=" ")
-            print()
+        if forwardChecking(nodes):
+            continue
+        else:
+            if len(path) == 0:
+                return False
+            else:
+                print("FUUUUUUUUUUUUUUUUUUUUUCK Yaaaaaaaaaaaaah")
+                i = 1
+                while not forwardChecking(nodes):
+                    print("back track number: ", i)
+                    removed = path.pop()
+                    removedNodeNumber = removed.coordinate[0] + removed.coordinate[1] * _tableSize
+                    nodes[removedNodeNumber].hasValue = False
+                    print("!!! HOW MANY OPTIONS: ", nodes[removedNodeNumber].numericDomain)
+                    nodes[removedNodeNumber].numericDomain.remove(removed.assignedValue)
+                    print("!!! HOW MANY OPTIONS: ", nodes[removedNodeNumber].numericDomain)
+                    rowNeighbors, columnNeighbors = nodes[removedNodeNumber].neighbors()
+                    for node in rowNeighbors:
+                        nodes[node[0] + node[1] * _tableSize].numericDomain.append(removed.assignedValue)
+                    for node in columnNeighbors:
+                        nodes[node[0] + node[1] * _tableSize].numericDomain.append(removed.assignedValue)
+                    updateMRV(nodes)
+                    print("MRV: ")
+                    for y in range(_tableSize):
+                        for x in range(_tableSize):
+                            num = y * _tableSize + x
+                            print(nodes[num].MRVSizeGetter(), end=" ")
+                        print()
+                    i += 1
+                    for y in range(_tableSize):
+                        for x in range(_tableSize):
+                            num = y * _tableSize + x
+                            print(nodes[num].numericDomain, end=" ")
+                        print()
+
+
+
+        # print("degrees: ")
+        # for y in range(_tableSize):
+        #     for x in range(_tableSize):
+        #         num = y * _tableSize + x
+        #         print(nodes[num].degree(nodes), end=" ")
+        #     print()
+        # if forwardChecking(nodes):
+        #     continue
+        # else:
 
 
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("2DArray.txt")
+    numbers, colors, sudokuTable = extractInputFile("test6.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
