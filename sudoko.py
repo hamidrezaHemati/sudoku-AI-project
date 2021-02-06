@@ -57,15 +57,11 @@ class Node:
         rowNeighbors, columnNeighbors = self.neighbors()
         for row in rowNeighbors:
             if row == neighborCoordinateToCheck:
-                # print("row: ", row)
-                # print("finded neighbor: ", neighborCoordinateToCheck)
                 return True
             else:
                 continue
         for column in columnNeighbors:
             if column == neighborCoordinateToCheck:
-                # print("column: ", column)
-                # print("finded neighbor: ", neighborCoordinateToCheck)
                 return True
             else:
                 continue
@@ -149,7 +145,6 @@ def numericSudokuMaker(sudokuTable):
 
 def NodeMaker(numericSudoku):
     nodes = []
-    print(nodes)
     x = y = 0
     for row in numericSudoku:
         for column in row:
@@ -168,34 +163,23 @@ def NodeMaker(numericSudoku):
 
 
 def minimumRemainingValues(nodes):
-    # print("*******************************************************************")
-    # print("DANGER ZONE!!!")
     dict = {}
     for i in range(len(nodes)):
         dict[nodes[i].position] = nodes[i].MRVSizeGetter()
-    # print("dict: ", dict)
     valueList = list(dict.values())
     coordianates = list(dict.keys())
-    # print("valueList: ", valueList)
-    # print("coordianates: ", coordianates)
     valueListForNotAssignedNodes = []
     for i in coordianates:
         if not nodes[i[0] + i[1] * _tableSize].hasValue:
             valueListForNotAssignedNodes.append(dict[i])
-    # print("valueListForNotAssignedNodes: ", valueListForNotAssignedNodes)
     minimum = min(valueListForNotAssignedNodes)
-    # print("minimum: ", minimum)
     indices = [i for i, x in enumerate(valueList) if x == minimum]
-    # print("indecis after first update: ", indices)
     indexesToRemove = []
     for i in indices:
         if nodes[i].hasValue:
             indexesToRemove.append(i)
-    # print("index to remove: ", indexesToRemove)
     for i in indexesToRemove:
         indices.remove(i)
-    # print("final indices: ", indices)
-    # print("*******************************************************************")
     return coordianates, indices
 
 
@@ -208,26 +192,17 @@ def bestNextNode(nodes):
     #     print(coordianates[i], end=" ")
     # print()
     if len(indices) == 1:
-        print("NEXT NODE FINDED BY SOLO MRV: ", coordianates[indices[0]])
-        print("number of options in domain: ", nodes[coordianates[indices[0]][0] + coordianates[indices[0]][1] * _tableSize].numericDomain)
         return coordianates[indices[0]]
     else:
-        print("DEGREE HEURISTIC NEDDED")
         degreeDict = {}
         for i in indices:
             degreeDict[coordianates[i]] = nodes[i].degree(nodes)
-        # print("degree dict: ", degreeDict)
         remindingDegreeValueList = list(degreeDict.values())
-        # print("remindingDegreeValueList <IMPORTANT> : ", remindingDegreeValueList)
         maximumValueOfDegree = max(remindingDegreeValueList)
-        # print("maximum degree value: ", maximumValueOfDegree)
         properNodesDict = {}
         for coordinate, degreeValue in degreeDict.items():
             if degreeValue == maximumValueOfDegree:
                 properNodesDict[coordinate] = degreeValue
-        # print("properNodesDict: ", properNodesDict)
-        # print("first best node coordinates: ", list(properNodesDict.keys())[0])
-        print("NUMBER OF CHOICES: ", len(properNodesDict))
         if len(properNodesDict) == 1:
             return list(properNodesDict.keys())[0]
         else:
@@ -269,15 +244,48 @@ stepNumber = 0
 # return false if there is node without any assignment options
 # return true if everything is fine
 def forwardChecking(nodes):
-    print("MRV: ")
-    for y in range(_tableSize):
-        for x in range(_tableSize):
-            num = y * _tableSize + x
-            print(nodes[num].MRVSizeGetter(), end=" ")
-        print()
+    # print("MRV: ")
+    # for y in range(_tableSize):
+    #     for x in range(_tableSize):
+    #         num = y * _tableSize + x
+    #         print(nodes[num].MRVSizeGetter(), end=" ")
+    #     print()
     for node in nodes:
         if node.MRVSizeGetter() == 0:
             return False
+    return True
+
+
+# return False if the problem dos not hav solution
+# return true if backtrack is finished successfully
+def backTrack(nodes, path):
+    i = 1
+    while not forwardChecking(nodes):
+        print("back track number: ", i)
+        if len(path) == 0:
+            return False
+        removed = path.pop()
+        removedNodeNumber = removed.coordinate[0] + removed.coordinate[1] * _tableSize
+        nodes[removedNodeNumber].hasValue = False
+        nodes[removedNodeNumber].numericDomain.remove(removed.assignedValue)
+        rowNeighbors, columnNeighbors = nodes[removedNodeNumber].neighbors()
+        for node in rowNeighbors:
+            nodes[node[0] + node[1] * _tableSize].numericDomain.append(removed.assignedValue)
+        for node in columnNeighbors:
+            nodes[node[0] + node[1] * _tableSize].numericDomain.append(removed.assignedValue)
+        updateMRV(nodes)
+        # print("MRV: ")
+        # for y in range(_tableSize):
+        #     for x in range(_tableSize):
+        #         num = y * _tableSize + x
+        #         print(nodes[num].MRVSizeGetter(), end=" ")
+        #     print()
+        i += 1
+        for y in range(_tableSize):
+            for x in range(_tableSize):
+                num = y * _tableSize + x
+                print(nodes[num].numericDomain, end=" ")
+            print()
     return True
 
 
@@ -291,118 +299,55 @@ def endGameCheck(nodes):
 
 def solve(nodes, path):
     global stepNumber
-    i = 1
     while True:
         if endGameCheck(nodes):
             break
-        print("i: ", i)
-        i += 1
         nextNode = bestNextNode(nodes)
         nodeNumber = nextNode[0] + nextNode[1] * _tableSize
-        print("NUMBER OF VALUES IN NODE DOMAIN: ", len(nodes[nodeNumber].numericDomain))
-        if len(nodes[nodeNumber].numericDomain) == 1:
-            nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
-            nodes[nodeNumber].hasValue = True
-            step = Step(nextNode, nodes[nodeNumber].assignedValue, stepNumber)
-        else:
-            nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
-            nodes[nodeNumber].hasValue = True
-            step = Step(nextNode, nodes[nodeNumber].assignedValue, stepNumber)
-        stepNumber += 1
+        # print("NUMBER OF VALUES IN NODE DOMAIN: ", len(nodes[nodeNumber].numericDomain))
+        nodes[nodeNumber].assignedValue = nodes[nodeNumber].numericDomain[0]
+        nodes[nodeNumber].hasValue = True
+        step = Step(nextNode, nodes[nodeNumber].assignedValue, stepNumber)
         path.append(step)
-        draw(nodes)
+        stepNumber += 1
+        # draw(nodes)
         updateMRV(nodes)
         if forwardChecking(nodes):
             continue
         else:
-            if len(path) == 0:
+            print("BACK TRACKING")
+            if not backTrack(nodes, path):
                 return False
-            else:
-                print("FUUUUUUUUUUUUUUUUUUUUUCK Yaaaaaaaaaaaaah")
-                i = 1
-                while not forwardChecking(nodes):
-                    print("back track number: ", i)
-                    removed = path.pop()
-                    removedNodeNumber = removed.coordinate[0] + removed.coordinate[1] * _tableSize
-                    nodes[removedNodeNumber].hasValue = False
-                    print("!!! HOW MANY OPTIONS: ", nodes[removedNodeNumber].numericDomain)
-                    nodes[removedNodeNumber].numericDomain.remove(removed.assignedValue)
-                    print("!!! HOW MANY OPTIONS: ", nodes[removedNodeNumber].numericDomain)
-                    rowNeighbors, columnNeighbors = nodes[removedNodeNumber].neighbors()
-                    for node in rowNeighbors:
-                        nodes[node[0] + node[1] * _tableSize].numericDomain.append(removed.assignedValue)
-                    for node in columnNeighbors:
-                        nodes[node[0] + node[1] * _tableSize].numericDomain.append(removed.assignedValue)
-                    updateMRV(nodes)
-                    print("MRV: ")
-                    for y in range(_tableSize):
-                        for x in range(_tableSize):
-                            num = y * _tableSize + x
-                            print(nodes[num].MRVSizeGetter(), end=" ")
-                        print()
-                    i += 1
-                    for y in range(_tableSize):
-                        for x in range(_tableSize):
-                            num = y * _tableSize + x
-                            print(nodes[num].numericDomain, end=" ")
-                        print()
-
-
-
-        # print("degrees: ")
-        # for y in range(_tableSize):
-        #     for x in range(_tableSize):
-        #         num = y * _tableSize + x
-        #         print(nodes[num].degree(nodes), end=" ")
-        #     print()
-        # if forwardChecking(nodes):
-        #     continue
-        # else:
+    return True
 
 
 def main():
     global _tableSize
-    numbers, colors, sudokuTable = extractInputFile("test6.txt")
+    numbers, colors, sudokuTable = extractInputFile("test5.txt")
     colorSize, _tableSize = numbers
     print(colorSize, _tableSize)
     print(colors)
     displaySudokuTable(sudokuTable)
     numericSudoku = numericSudokuMaker(sudokuTable)
-    displaySudokuTable(numericSudoku)
     nodes = NodeMaker(numericSudoku)
-    numberOfAlreaduQuantifiedNodes = 0
-    for node in nodes:
-        if node.hasValue:
-            numberOfAlreaduQuantifiedNodes += 1
-    print("degrees : ")
-    for y in range(_tableSize):
-        for x in range(_tableSize):
-            num = y * _tableSize + x
-            print(nodes[num].degree(nodes), end=" ")
-        print()
-
-    print("MRV: ")
+    draw(nodes)
     for y in range(_tableSize):
         for x in range(_tableSize):
             num = y * _tableSize + x
             nodes[num].MRVUpdate(nodes)
-
-    for y in range(_tableSize):
-        for x in range(_tableSize):
-            num = y * _tableSize + x
-            print(nodes[num].MRVSizeGetter(), end=" ")
-        print()
-
-    print("empty nodes at first: ", numberOfAlreaduQuantifiedNodes, len(nodes))
-    print("--------------------------------------------")
     print("--------------------------------------------")
     path = []
-    solve(nodes, path)
-    for i in path:
-        print("#########")
-        print("step number: ", i.stepCounter)
-        print("selected coordinate: ", i.coordinate)
-        print("assigned value: ", i.assignedValue)
+    if not solve(nodes, path):
+        print("this table dos'nt have an answer")
+    else:
+        print()
+        print("solved sudoku table: ")
+        draw(nodes)
+    # for i in path:
+    #     print("#########")
+    #     print("step number: ", i.stepCounter)
+    #     print("selected coordinate: ", i.coordinate)
+    #     print("assigned value: ", i.assignedValue)
 
 
 main()
