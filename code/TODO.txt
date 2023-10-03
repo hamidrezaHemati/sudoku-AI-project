@@ -1,0 +1,24 @@
+TODO created date: 15 bahman
+TODO deadLine: 16 bahman
+
+backtracking and forward chaining:
+
+after each value assignment to a node i should update the MRV of nodes
+    - IF there was no 0 in MRV list, the new assignment was ok
+    - ELSE there is a problem and that is a sign that we should start backtracking.
+        + the problem is the last assignment (or assignments before that) was bad
+        - we should look up to the path we take and find the last taken step.
+            + in each Step in path there is 3 important attribute
+                1. coordinate: coordinate of the node that we update it's value
+                2. assignedValue: the value that we assigned to that node
+                3.stepCounter: the number of step
+        - after find the Step and extract its attributes
+            1. set node.hasValue to False: set the bad chosen node hasValue boolean to False
+            2. update the MRV of nodes again: to update the value domain of changed neighbors of that bad chosen node
+            3. remove assignedValue from the domain of that bad chosen node: because that assignedValue was the problem from the beginning
+               and if we assign that value to that node again then ( HAMON ASHO HAMON KASE همون آش و همون کاسه )
+                1. IF the remaining values in domain of the node was >= 1:
+                    its OK
+                2. ELSE: we get FUCKED UP:
+                    we should backtrack again
+
